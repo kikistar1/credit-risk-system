@@ -1,0 +1,81 @@
+# ============================================================
+# 数据配置
+# ============================================================
+dataset:
+  name: "天池零基础入门金融风控-贷款违约预测"
+  total_samples: 100000
+
+paths:
+  raw_dir: "./data/raw"
+  sample_dir: "./data/sample"
+
+  train_file: "train.csv"
+  sample_file: "sample.csv"
+
+target_column: "isDefault"
+id_column: "id"
+
+columns:
+  numerical:
+    - loanAmnt
+    - term
+    - interestRate
+    - installment
+    - annualIncome
+    - dti
+    - delinquency_2years
+    - ficoRangeLow
+    - ficoRangeHigh
+    - openAcc
+    - pubRec
+    - pubRecBankruptcies
+    - revolBal
+    - revolUtil
+    - totalAcc
+
+  categorical:
+    - grade
+    - subGrade
+    - employmentTitle
+    - employmentLength
+    - homeOwnership
+    - verificationStatus
+    - purpose
+    - postCode
+    - regionCode
+    - initialListStatus
+    - applicationType
+    - title
+    - policyCode
+
+  datetime:
+    - issueDate
+    - earliesCreditLine
+
+  anonymous:
+    - n0
+    - n1
+    - n2
+    - n3
+    - n4
+    - n5
+    - n6
+    - n7
+    - n8
+    - n9
+    - n10
+    - n11
+    - n12
+    - n13
+    - n14
+
+split:
+  test_size: 0.2
+  validation_size: 0.1
+  random_state: 42
+  stratify: true
+
+loading:
+  chunk_size: 100000
+  encoding: "utf-8"
+  low_memory: false

@@ -1,0 +1,124 @@
+# ============================================================
+# LLM 配置
+# 说明：DeepSeek API 调用参数、Prompt 模板、各 Agent 配置
+# ============================================================
+
+# ===== DeepSeek API 基础配置 =====
+deepseek:
+  base_url: "${DEEPSEEK_BASE_URL:-https://api.deepseek.com}"
+  api_key_env: "DEEPSEEK_API_KEY"
+  model: "${DEEPSEEK_MODEL:-deepseek-chat}"
+
+  default_params:
+    temperature: 0.3
+    max_tokens: 2000
+    top_p: 0.9
+    frequency_penalty: 0.0
+    presence_penalty: 0.0
+    timeout: 30
+
+  retry:
+    max_attempts: 3
+    backoff_factor: 2
+    initial_wait: 1
+    max_wait: 30
+
+  rate_limit:
+    enabled: true
+    requests_per_minute: 60
+
+# ===== Prompt 模板路径 =====
+prompts:
+  templates_dir: "./configs/prompts"
+
+  risk_report:
+    template_file: "risk_report.j2"
+    system_role: |
+      你是一名资深的金融风控分析师，专长于个人信贷风险评估。
+      你需要基于机器学习模型的预测结果和 SHAP 特征贡献度，
+      为业务人员生成清晰、专业、可操作的风险评估报告。
+      报告要求：
+      1. 语言通俗易懂，避免使用过多技术术语
+      2. 重点突出关键风险因素和保护因素
+      3. 给出明确的审批建议
+      4. 包含必要的免责声明
+
+  feature_suggestion:
+    template_file: "feature_suggestion.j2"
+    system_role: |
+      你是一名经验丰富的数据科学家，专长于金融领域的特征工程。
+      你需要基于数据字段说明和样本统计信息，
+      为风控建模提供专业的特征衍生建议。
+
+  case_analysis:
+    template_file: "case_analysis.j2"
+    system_role: |
+      你是一名机器学习模型诊断专家。
+      你需要分析模型预测错误的样本，找出潜在原因并提供改进建议。
+
+  chat_assistant:
+    template_file: "chat_assistant.j2"
+    system_role: |
+      你是"智能信贷风控分析系统"的 AI 助手。
+      你可以回答关于数据、模型、风控业务的各类问题。
+      回答要简洁、准确、有依据。如果不确定，请明确说明。
+  # 政策合规检查新加
+  compliance_check:
+    template_file: "compliance_check.j2"
+    system_role: |
+      你是一名银行合规审查员，负责审查贷款审批是否符合监管要求。
+      你需要严格对照给定的监管要求，输出 JSON 格式的合规检查报告。
+
+# ===== Agent 行为配置 =====
+agents:
+
+  report_agent:
+    enabled: true
+    top_n_features: 5
+    include_recommendations: true
+    output_format: "markdown"
+    streaming: false
+
+  feature_agent:
+    enabled: true
+    sample_size: 1000
+    max_suggestions: 10
+    include_code: true
+
+  case_agent:
+    enabled: true
+    max_cases: 20
+    confidence_threshold: 0.85
+
+  chat_agent:
+    enabled: true
+    max_history_turns: 10
+    streaming: true
+
+  compliance_agent: #新加
+    enabled: true
+    temperature: 0.1
+    max_tokens: 2000
+
+# ===== 安全与合规 =====
+safety:
+  pii_filter:
+    enabled: true
+    fields_to_mask:
+      - "id"
+      - "postCode"
+      - "employmentTitle"
+      - "title"
+
+  content_filter:
+    enabled: true
+    block_patterns:
+      - "API[_ ]?KEY"
+      - "password"
+      - "secret"
+
+  audit_log:
+    enabled: true
+    log_file: "./logs/llm_audit.log"
+    log_request: true
+    log_response: false
